@@ -1,0 +1,66 @@
+/* @override http://localhost:8889/style.css */
+
+#graphMatrix svg {
+
+}
+
+#graphMatrix {
+	margin-left: 2em;
+}
+
+td.graph {
+	border-right: 1px solid lightgray;
+	border-bottom: 1px solid lightgray;
+}
+
+td.graph:last-child {
+	border-right: 0;	
+}
+
+.background {
+    fill: none;
+    pointer-events: all;
+}
+
+.missionaryArc {
+    fill: #1f77b4;
+}
+
+.cannibalArc {
+    fill: #ff7f0e;
+}
+
+#graphMatrix .dot {
+    fill: white;
+    stroke: gray;
+    stroke-width: 1.5px;
+}
+
+#graphMatrix .link {
+    stroke: #999;
+    stroke-opacity: 0.6;
+    stroke-width: 3px;
+}
+
+td.desc {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-size: 72pt;
+	text-align: center;
+	vertical-align: middle;
+	color: #006cbe;
+}
+
+td.desc.row {
+	border-right-style: double;
+	border-right-width: 0.05em;
+	border-right-color:  lightgray;
+}
+
+
+td.desc.col {
+	border-bottom-style: double;
+	border-bottom-width: 0.05em;
+	border-bottom-color: lightgray;
+}
+
+

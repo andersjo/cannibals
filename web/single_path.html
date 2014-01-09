@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cannibals and missionaries</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body onload="chart1()">
+<script src="d3.js"></script>
+<script>
+    function chart1() {
+        var width = 190, height = 220;
+        var radius = 8;
+
+        function drawGraph(graph, container) {
+            var nodeLookup = d3.map()
+            graph.nodes.forEach(function (e) {
+                nodeLookup.set(e.name, e)
+            })
+            var edges = graph.edges.map(function (e) {
+                return [nodeLookup.get(e[0]), nodeLookup.get(e[1])]
+            })
+
+            var link = container.append("g")
+                    .attr("class", "links")
+                    .selectAll(".link")
+                    .data(edges);
+
+            link.enter().append("line")
+                    .attr("class", "link")
+                    .attr("x1", function (d) { return d[0].x })
+                    .attr("y1", function (d) { return d[0].y })
+                    .attr("x2", function (d) { return d[1].x })
+                    .attr("y2", function (d) { return d[1].y })
+
+            var dot = container.append("g")
+                    .attr("class", "dots")
+                    .selectAll(".dot")
+                    .data(graph.nodes);
+
+            dot.enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("cx", function (d) { return d.x })
+                    .attr("cy", function (d) { return d.y })
+                    .attr("r", radius)
+
+            var cannibalArc = d3.svg.arc()
+                    .innerRadius(0)
+                    .outerRadius(radius)
+                    .startAngle(0)
+                    .endAngle(function (d) { return (d.cannibals_right / graph.n_cannibals) * Math.PI })
+
+            dot.enter().append("path")
+                    .attr("d", cannibalArc)
+                    .attr("class", "cannibalArc")
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")" })
+
+            var missionaryArc = d3.svg.arc()
+                    .innerRadius(0)
+                    .outerRadius(radius)
+                    .startAngle(function (d) { return -(d.missionaries_right / graph.n_missionaries) * Math.PI })
+                    .endAngle(0)
+
+            dot.enter().append("path")
+                    .attr("d", missionaryArc)
+                    .attr("class", "missionaryArc")
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")" })
+
+            dot.enter().append("path")
+                    .attr("d", missionaryArc)
+                    .attr("class", "missionaryArc")
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")" })
+
+        }
+
+        function constructMatrix(graphs) {
+            var groupSizes = d3.set(graphs.map(function(d) { return d.group_size}))
+            var boatCapacities = d3.set(graphs.map(function(d) { return d.boat_capacity}))
+            var header = d3.select("#graphMatrix").append("tr")
+            header.append("td")
+            header.selectAll("td.desc").data(groupSizes.values()).enter()
+                    .append("td")
+                    .attr("class", "desc col")
+                    .html(function(d) {return d})
+
+            boatCapacities.forEach(function(boatCapacity) {
+                var tr = d3.select("#graphMatrix").append("tr")
+                tr.append("td").attr("class", "desc row").html(boatCapacity)
+                tr.selectAll("td.graph").data(groupSizes.values()).enter()
+                        .append("td")
+                        .attr("class", "graph")
+                        .attr("id", function(d) { return "m" + boatCapacity + "_" + d })
+            })
+        }
+
+        d3.json("single.json", function (graphs) {
+            constructMatrix(graphs)
+
+            graphs.forEach(function(graph) {
+                var cellId = "#m" + graph.boat_capacity + "_" + graph.group_size
+                var svg = d3.select(cellId).append("svg")
+                    .attr("width", width)
+                    .attr("height", height);
+
+                console.log(graph)
+
+                // Rescale node coordinates
+                var xCoords = graph.nodes.map(function(e) { return e.x })
+                var xScale = d3.scale.linear()
+                    .domain([d3.min(xCoords), d3.max(xCoords)])
+                    .range([10, width-10])
+
+                if (xScale.domain()[0] == xScale.domain()[1]) {
+                    xScale.range([width/2, width/2])
+                }
+
+                var yCoords = graph.nodes.map(function(e) { return e.y })
+                var yScale = d3.scale.linear()
+                    .domain([d3.min(yCoords), d3.max(yCoords)])
+                    .range([10, height-10])
+
+                graph.nodes = graph.nodes.map(function(e) {
+                    e.x = xScale(e.x)
+                    e.y = yScale(e.y)
+                    return e
+                })
+
+                drawGraph(graph, svg)
+
+
+            })
+            allGraphs = graphs
+
+
+
+        });
+
+    }
+</script>
+
+<h2>Cannibals and </h2>
+
+<div id="matrix">
+
+</div>
+
+<div id="chart1">
+</div>
+<table id="graphMatrix">
+
+</table>
+</body>
+</html>
+
